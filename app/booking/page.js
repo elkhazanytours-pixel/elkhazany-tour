@@ -1,7 +1,6 @@
-export const dynamic = "force-dynamic";
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 
@@ -12,13 +11,26 @@ const TOUR_OPTIONS = [
   { label: "Nile Cruise Program", value: "nile-cruise-program" },
 ];
 
-export default function Booking() {
+export default function BookingPage() {
+  return (
+    <Suspense fallback={<div>Loading booking...</div>}>
+      <Booking />
+    </Suspense>
+  );
+}
+
+function Booking() {
   const searchParams = useSearchParams();
 
   const initialTourLabel = useMemo(() => {
     const t = searchParams.get("tour") || "";
     return decodeURIComponent(t || "").trim();
   }, [searchParams]);
+
+  // باقي الكود عندك كله يفضل هنا جوه Booking
+
+
+  
 
   const inferTourValue = (label) => {
     const found = TOUR_OPTIONS.find((x) => x.label.toLowerCase() === label.toLowerCase());
