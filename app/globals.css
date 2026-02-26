@@ -11,3 +11,25 @@ body {
   background: #0b0b0f;
   color: white;
 }
+/* Cinematic++ global overlays */
+.cine-vignette {
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background:
+    radial-gradient(1200px 700px at 50% 0%, rgba(255, 200, 0, 0.10), rgba(11, 11, 15, 0) 60%),
+    radial-gradient(900px 600px at 10% 60%, rgba(255, 200, 0, 0.06), rgba(11, 11, 15, 0) 55%),
+    radial-gradient(900px 600px at 90% 60%, rgba(255, 200, 0, 0.05), rgba(11, 11, 15, 0) 55%),
+    radial-gradient(900px 700px at 50% 100%, rgba(0, 0, 0, 0.55), rgba(11, 11, 15, 0) 55%);
+}
+
+.cine-grain {
+  pointer-events: none;
+  position: fixed;
+  inset: -30%;
+  z-index: 0;
+  opacity: 0.09;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='220' height='220' filter='url(%23n)' opacity='.35'/%3E%3C/svg%3E");
+  transform: rotate(2deg);
+}
