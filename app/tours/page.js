@@ -34,7 +34,8 @@ export default function ToursPage() {
 
       const matchesDuration = duration === "All" || t.duration === duration;
 
-      const matchesPrice = Number(t.price) <= Number(maxPrice);
+      const basePrice = t.packages?.[0]?.price || 0;
+const matchesPrice = Number(basePrice) <= Number(maxPrice);
 
       return matchesQuery && matchesType && matchesDuration && matchesPrice;
     });
@@ -146,7 +147,7 @@ export default function ToursPage() {
 
                     {/* Price pill */}
                     <div className="absolute top-4 right-4 bg-yellow-500/95 text-black font-semibold px-5 py-2 rounded-full shadow-[0_10px_30px_rgba(0,0,0,0.45)]">
-                      ${t.price}
+                      {"From $" + (t.packages?.[0]?.price || 0)}
                     </div>
 
                     {/* Shine effect */}

@@ -2,18 +2,12 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { supabase } from "@/lib/supabaseClient";
-
-const TOUR_OPTIONS = [
-  { label: "Pyramids & Sphinx Exclusive", value: "pyramids-and-sphinx-exclusive" },
-  { label: "Luxor Day Tour", value: "luxor-day-tour" },
-  { label: "Aswan Highlights", value: "aswan-highlights" },
-  { label: "Nile Cruise Program", value: "nile-cruise-program" },
-];
+import Navbar from "../../components/Navbar";
+import { TOURS } from "../../lib/tours";
 
 export default function BookingPage() {
   return (
-    <Suspense fallback={<div>Loading booking...</div>}>
+    <Suspense fallback={<div style={{ padding: 24, color: "white" }}>Loading booking…</div>}>
       <Booking />
     </Suspense>
   );
@@ -22,35 +16,37 @@ export default function BookingPage() {
 function Booking() {
   const searchParams = useSearchParams();
 
-  const initialTourLabel = useMemo(() => {
-    const t = searchParams.get("tour") || "";
-    return decodeURIComponent(t || "").trim();
+  const initial = useMemo(() => {
+    const tourTitleRaw = (searchParams.get("tour") || "").trim();
+    const tourSlugFromUrlRaw = (searchParams.get("tour_slug") || "").trim();
+    const pkgRaw = (searchParams.get("package") || "").trim();
+    const price = Number(searchParams.get("price")) || 0;
+
+    const tourTitle = decodeURIComponent(tourTitleRaw);
+    const tourSlugFromUrl = decodeURIComponent(tourSlugFromUrlRaw);
+    const pkg = decodeURIComponent(pkgRaw);
+
+    const bySlug = tourSlugFromUrl ? TOURS.find((t) => t.slug === tourSlugFromUrl) : null;
+    const byTitle = tourTitle
+      ? TOURS.find((t) => t.title.toLowerCase() === tourTitle.toLowerCase())
+      : null;
+
+    const resolvedSlug = tourSlugFromUrl || bySlug?.slug || byTitle?.slug || "";
+
+    return { tourTitle, tourSlug: resolvedSlug, pkg, price };
   }, [searchParams]);
 
-  // باقي الكود عندك كله يفضل هنا جوه Booking
-
-
-  
-
-  const inferTourValue = (label) => {
-    const found = TOUR_OPTIONS.find((x) => x.label.toLowerCase() === label.toLowerCase());
-    if (found) return found.value;
-    // fallback: slugify-ish
-    return label
-      .toLowerCase()
-      .replace(/&/g, "and")
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/(^-|-$)/g, "");
-  };
-
   const [form, setForm] = useState({
+    tour_name: "",
+    tour_slug: "",
+    package_name: "",
+    price_per_person: 0,
+    guests: 2,
+
     full_name: "",
     email: "",
     phone: "",
-    tour_slug: "",
-    tour_label: "",
     tour_date: "",
-    guests: 2,
     preferred_contact: "WhatsApp",
     notes: "",
   });
@@ -59,201 +55,236 @@ function Booking() {
   const [status, setStatus] = useState("");
 
   useEffect(() => {
-    // prefill from URL: ?tour=...
-    if (initialTourLabel) {
-      setForm((p) => ({
-        ...p,
-        tour_label: initialTourLabel,
-        tour_slug: inferTourValue(initialTourLabel),
-      }));
-    }
+    setForm((p) => ({
+      ...p,
+      tour_name: initial.tourTitle || p.tour_name,
+      tour_slug: initial.tourSlug || p.tour_slug,
+      package_name: initial.pkg || p.package_name,
+      price_per_person: initial.price || p.price_per_person,
+    }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialTourLabel]);
+  }, [initial.tourTitle, initial.tourSlug, initial.pkg, initial.price]);
+
+  const price = Number(form.price_per_person || 0);
+  const guests = Math.max(1, Number(form.guests || 1));
+  const total = Number(price) * Number(guests);
 
   const update = (k, v) => setForm((p) => ({ ...p, [k]: v }));
 
-  const requiredMissing = () => {
+  const validate = () => {
     const missing = [];
-    if (!form.full_name.trim()) missing.push("full_name");
-    if (!form.email.trim()) missing.push("email");
-    if (!form.phone.trim()) missing.push("phone");
+    if (!form.tour_name?.trim()) missing.push("tour");
+    if (!form.tour_slug?.trim()) missing.push("tour_slug");
+    if (!price) missing.push("price");
+    if (!form.full_name?.trim()) missing.push("full_name");
+    if (!form.email?.trim()) missing.push("email");
+    if (!form.phone?.trim()) missing.push("phone");
     return missing;
   };
 
-  const saveToSupabaseIfAvailable = async () => {
-    // لو supabase مش موجود مش هنكسر الصفحة
-    if (!supabase) return { ok: true, skipped: true };
+  const buildWA = (bookingCode = "—") => {
+    const waNumber =
+      (process.env.NEXT_PUBLIC_WA_NUMBER || "").replace(/[^\d]/g, "") || "201021021296";
 
+    const msg = `
+Hello El Khazany Tour 👋
+
+New Booking Request
+Booking Code: ${bookingCode}
+
+Tour: ${form.tour_name}
+Tour Slug: ${form.tour_slug}
+Package: ${form.package_name || "-"}
+Price/Person: $${price}
+Guests: ${guests}
+Total: $${total}
+
+Name: ${form.full_name}
+Email: ${form.email}
+Phone: ${form.phone}
+Date: ${form.tour_date || "-"}
+Notes: ${form.notes || "-"}
+`.trim();
+
+    return `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
+  };
+
+  // ✅ إنشاء الحجز من API الآمن
+  const createBooking = async () => {
     const payload = {
-      tour_slug: form.tour_slug || inferTourValue(form.tour_label || ""),
+      tour_name: form.tour_name,
+      tour_slug: form.tour_slug,
+      package_name: form.package_name || null,
+      price_per_person: Number(price),
+      guests,
+      total_price: Number(total),
+
       full_name: form.full_name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
       tour_date: form.tour_date || null,
-      guests: Number(form.guests || 1),
       preferred_contact: form.preferred_contact || "WhatsApp",
       notes: form.notes || "",
+      source: "website",
+      currency: "USD",
     };
 
-    const { error } = await supabase.from("bookings").insert([payload]);
-    if (error) return { ok: false, error: error.message };
-    return { ok: true };
+    const res = await fetch("/api/bookings/create", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.message || data?.error || "Booking API failed");
+    return data?.data; // booking row
   };
 
-  // ✅ WhatsApp handler (الخطأ كان هنا لأنه مش موجود عندك)
-  const handleSubmitWhatsApp = async (e) => {
+  // ✅ إرسال الإيميل الرسمي (نفس API الحالي)
+  const sendOfficialEmail = async (bookingRow) => {
+    const payload = {
+      booking_id: bookingRow?.id || null,
+      booking_code: bookingRow?.booking_code || null,
+      created_at: bookingRow?.created_at || null,
+
+      tour_name: form.tour_name,
+      tour_slug: form.tour_slug,
+      package_name: form.package_name,
+      price_per_person: Number(price),
+      guests,
+      total_price: Number(total),
+
+      full_name: form.full_name,
+      email: form.email,
+      phone: form.phone,
+      tour_date: form.tour_date,
+      preferred_contact: form.preferred_contact,
+      notes: form.notes,
+    };
+
+    const res = await fetch("/api/sendbookingemail", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.message || data?.error || "Email API failed");
+    return true;
+  };
+
+  const handleWhatsApp = async (e) => {
     e.preventDefault();
     setStatus("");
 
-    const missing = requiredMissing();
+    const missing = validate();
     if (missing.length) {
-      setStatus(`Error: Missing required fields: ${missing.join(", ")}`);
+      setStatus(`❌ Missing required fields: ${missing.join(", ")}`);
       return;
     }
 
     setLoading(true);
     try {
-      // احفظ في Supabase (لو موجود)
-      const saved = await saveToSupabaseIfAvailable();
-      if (!saved.ok) {
-        setStatus(`Error: ${saved.error}`);
-        setLoading(false);
-        return;
-      }
-
-      const msg = `
-New Booking Request — El Khazany Tour
-Name: ${form.full_name}
-Email: ${form.email}
-Phone: ${form.phone}
-Tour: ${form.tour_label || form.tour_slug || "-"}
-Date: ${form.tour_date || "-"}
-Guests: ${form.guests || "-"}
-Notes: ${form.notes || "-"}
-`.trim();
-
-      // رقم الواتساب بتاعك (غيره لو عايز)
-      const whatsappNumber = "201021021296";
-      const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(msg)}`;
-      window.open(url, "_blank", "noopener,noreferrer");
-
-      setStatus("✅ WhatsApp opened. If it didn't open, please check popup blocker.");
+      const bookingRow = await createBooking();
+      const code = bookingRow?.booking_code || bookingRow?.id || "—";
+      window.open(buildWA(code), "_blank", "noopener,noreferrer");
+      setStatus("✅ Booking saved securely + WhatsApp opened.");
     } catch (err) {
-      setStatus(`Error: ${err?.message || "Unknown error"}`);
+      setStatus(`❌ Error: ${err?.message || "Unknown error"}`);
     } finally {
       setLoading(false);
     }
   };
 
-  // ✅ Official Email handler
-  const handleSendEmail = async () => {
+  const handleEmail = async () => {
     setStatus("");
 
-    const missing = requiredMissing();
+    const missing = validate();
     if (missing.length) {
-      setStatus(`Error: Missing required fields: ${missing.join(", ")}`);
+      setStatus(`❌ Missing required fields: ${missing.join(", ")}`);
       return;
     }
 
     setLoading(true);
     try {
-      // احفظ في Supabase (لو موجود)
-      const saved = await saveToSupabaseIfAvailable();
-      if (!saved.ok) {
-        setStatus(`Error: ${saved.error}`);
-        setLoading(false);
-        return;
-      }
-
-      const res = await fetch("/api/sendbookingemail", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          full_name: form.full_name,
-          email: form.email,
-          phone: form.phone,
-          tour: form.tour_label || form.tour_slug,
-          tour_date: form.tour_date,
-          guests: form.guests,
-          preferred_contact: form.preferred_contact,
-          notes: form.notes,
-        }),
-      });
-
-      const data = await res.json().catch(() => ({}));
-
-      if (!res.ok) {
-        setStatus(`Error: ${data?.error || "Email API failed"}`);
-        return;
-      }
-
-      setStatus("✅ Official Email sent successfully!");
+      const bookingRow = await createBooking();
+      await sendOfficialEmail(bookingRow);
+      setStatus("✅ Booking saved securely + Official email sent!");
     } catch (err) {
-      setStatus(`Error: ${err?.message || "Unknown error"}`);
+      setStatus(`❌ Error: ${err?.message || "Unknown error"}`);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-black text-white">
-      <div className="mx-auto max-w-3xl px-4 py-10">
-        <h1 className="text-3xl font-semibold mb-6">Booking</h1>
+    <main className="min-h-screen bg-[#0B0B0F] text-white">
+      <Navbar />
 
-        <form onSubmit={handleSubmitWhatsApp} className="rounded-2xl border border-white/10 bg-white/5 p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="max-w-3xl mx-auto px-6 pt-32 pb-24">
+        <h1 className="text-4xl font-[var(--font-playfair)] font-bold mb-8">
+          Confirm <span className="text-yellow-400">Booking</span>
+        </h1>
+
+        <div className="bg-white/5 border border-white/10 rounded-3xl p-8 mb-8 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
+          <div className="space-y-2 text-white/90">
+            <p><strong>Tour:</strong> {form.tour_name || "—"}</p>
+            <p><strong>Package:</strong> {form.package_name || "—"}</p>
+            <p><strong>Price per person:</strong> {price ? `$${price}` : "—"}</p>
+            <p className="text-xs text-white/40"><strong>Slug:</strong> {form.tour_slug || "—"}</p>
+          </div>
+
+          <div className="mt-5">
+            <label className="text-sm text-white/70">Number of Guests</label>
+            <input
+              type="number"
+              min="1"
+              value={guests}
+              onChange={(e) => update("guests", e.target.value)}
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+            />
+          </div>
+
+          <p className="text-2xl font-bold text-yellow-400 mt-6">Total: ${total}</p>
+        </div>
+
+        <form
+          onSubmit={handleWhatsApp}
+          className="bg-white/5 border border-white/10 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
+        >
+          <div className="grid md:grid-cols-2 gap-5">
             <div>
-              <label className="text-sm text-white/70">Full Name</label>
+              <label className="text-sm text-white/70">Full Name *</label>
               <input
                 value={form.full_name}
                 onChange={(e) => update("full_name", e.target.value)}
-                placeholder="Your name"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+                placeholder="Your full name"
+                required
               />
             </div>
 
             <div>
-              <label className="text-sm text-white/70">Email</label>
+              <label className="text-sm text-white/70">Email *</label>
               <input
+                type="email"
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
                 placeholder="you@email.com"
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+                required
               />
             </div>
 
             <div>
-              <label className="text-sm text-white/70">Phone / WhatsApp</label>
+              <label className="text-sm text-white/70">WhatsApp / Phone *</label>
               <input
                 value={form.phone}
                 onChange={(e) => update("phone", e.target.value)}
-                placeholder="+20 ..."
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+                placeholder="+20 10xxxxxxx"
+                required
               />
-            </div>
-
-            <div>
-              <label className="text-sm text-white/70">Select Tour</label>
-              <select
-                value={form.tour_slug}
-                onChange={(e) => {
-                  const v = e.target.value;
-                  const lbl = TOUR_OPTIONS.find((x) => x.value === v)?.label || v;
-                  update("tour_slug", v);
-                  update("tour_label", lbl);
-                }}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-              >
-                <option value="">-- Select --</option>
-                {TOUR_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-              {form.tour_label ? (
-                <p className="mt-2 text-xs text-white/60">Selected: {form.tour_label}</p>
-              ) : null}
             </div>
 
             <div>
@@ -262,28 +293,17 @@ Notes: ${form.notes || "-"}
                 type="date"
                 value={form.tour_date}
                 onChange={(e) => update("tour_date", e.target.value)}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm text-white/70">Guests</label>
-              <input
-                type="number"
-                min="1"
-                value={form.guests}
-                onChange={(e) => update("guests", e.target.value)}
-                className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
               />
             </div>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-5">
             <label className="text-sm text-white/70">Preferred Contact</label>
             <select
               value={form.preferred_contact}
               onChange={(e) => update("preferred_contact", e.target.value)}
-              className="mt-2 w-full rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
             >
               <option>WhatsApp</option>
               <option>Email</option>
@@ -291,41 +311,38 @@ Notes: ${form.notes || "-"}
             </select>
           </div>
 
-          <div className="mt-4">
+          <div className="mt-5">
             <label className="text-sm text-white/70">Notes (optional)</label>
             <textarea
               value={form.notes}
               onChange={(e) => update("notes", e.target.value)}
-              placeholder="Special requests, hotel pickup, language preference, etc."
-              className="mt-2 w-full min-h-[110px] rounded-xl border border-white/10 bg-black/30 px-4 py-3 outline-none"
+              placeholder="Hotel pickup, language preference, special requests…"
+              className="mt-2 w-full min-h-[120px] rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
             />
           </div>
 
-          <div className="mt-6 space-y-3">
+          <div className="mt-7 space-y-3">
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-full bg-yellow-500 text-black font-semibold py-4 disabled:opacity-60"
+              className="w-full rounded-full bg-yellow-500 text-black font-semibold py-4 disabled:opacity-60 hover:shadow-[0_0_25px_rgba(255,200,0,0.45)] hover:scale-[1.01] transition"
             >
-              {loading ? "Working..." : "Confirm Booking (WhatsApp)"}
+              {loading ? "Working…" : "Confirm Booking (WhatsApp)"}
             </button>
 
             <button
               type="button"
-              onClick={handleSendEmail}
+              onClick={handleEmail}
               disabled={loading}
-              className="w-full rounded-full border border-yellow-500/60 bg-yellow-500/10 text-yellow-200 font-semibold py-4 disabled:opacity-60"
+              className="w-full rounded-full border border-yellow-500/60 bg-yellow-500/10 text-yellow-200 font-semibold py-4 disabled:opacity-60 hover:bg-yellow-500 hover:text-black transition"
             >
-              {loading ? "Working..." : "Confirm Booking (Official Email)"}
+              {loading ? "Working…" : "Confirm Booking (Official Email)"}
             </button>
           </div>
 
           {status ? (
-            <div className="mt-5 rounded-xl border border-white/10 bg-black/30 p-4">
-              <p className="text-sm text-white/80">{status}</p>
-              <p className="text-xs text-white/40 mt-1">
-                If WhatsApp didn&apos;t open, please check your popup blocker.
-              </p>
+            <div className="mt-5 rounded-2xl border border-white/10 bg-black/30 p-4">
+              <p className="text-sm text-white/85">{status}</p>
             </div>
           ) : null}
 
@@ -334,6 +351,6 @@ Notes: ${form.notes || "-"}
           </p>
         </form>
       </div>
-    </div>
+    </main>
   );
 }
