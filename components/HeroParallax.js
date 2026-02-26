@@ -11,13 +11,22 @@ export default function HeroParallax() {
   const sectionRef = useRef(null);
   const bgRef = useRef(null);
   const glowRef = useRef(null);
+  const contentRef = useRef(null);
 
   useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // Parallax background
+      // Cinematic intro animation
+      gsap.from(contentRef.current, {
+        opacity: 0,
+        y: 60,
+        duration: 1.2,
+        ease: "power3.out",
+      });
+
+      // Parallax background stronger cinematic feel
       gsap.to(bgRef.current, {
-        yPercent: 12,
-        scale: 1.08,
+        yPercent: 18,
+        scale: 1.12,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -27,10 +36,10 @@ export default function HeroParallax() {
         },
       });
 
-      // subtle glow move
+      // premium glow movement
       gsap.to(glowRef.current, {
-        yPercent: -18,
-        opacity: 0.55,
+        yPercent: -22,
+        opacity: 0.65,
         ease: "none",
         scrollTrigger: {
           trigger: sectionRef.current,
@@ -53,34 +62,40 @@ export default function HeroParallax() {
       <div ref={bgRef} className="absolute inset-0 will-change-transform">
         <img
           src="/hero.jpg"
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover scale-105"
           alt="Egypt Luxury"
         />
       </div>
 
-      {/* Dark overlays */}
-      <div className="absolute inset-0 bg-black/70" />
-      <div className="absolute inset-0 bg-gradient-to-b from-black/85 via-transparent to-black/85" />
+      {/* Cinematic overlays */}
+      <div className="absolute inset-0 bg-black/75" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black/90" />
 
       {/* Premium glow */}
-      <div ref={glowRef} className="absolute inset-0 pointer-events-none opacity-40">
-        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-yellow-500/18 blur-3xl rounded-full" />
-        <div className="absolute -bottom-48 -left-48 w-[560px] h-[560px] bg-yellow-500/14 blur-3xl rounded-full" />
+      <div
+        ref={glowRef}
+        className="absolute inset-0 pointer-events-none opacity-50"
+      >
+        <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-yellow-500/20 blur-3xl rounded-full" />
+        <div className="absolute -bottom-48 -left-48 w-[560px] h-[560px] bg-yellow-500/15 blur-3xl rounded-full" />
       </div>
 
       {/* Content */}
-      <div className="relative z-10 max-w-4xl px-6">
+      <div
+        ref={contentRef}
+        className="relative z-10 max-w-4xl px-6"
+      >
         <Reveal>
-          <h1 className="text-6xl md:text-7xl font-[var(--font-playfair)] font-bold leading-tight text-white">
+          <h1 className="text-6xl md:text-7xl font-[var(--font-playfair)] font-bold leading-tight text-white tracking-wide">
             Discover Egypt
-            <span className="block bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-yellow-400 via-yellow-500 to-yellow-600 bg-clip-text text-transparent drop-shadow-[0_0_12px_rgba(255,200,0,0.35)]">
               in Luxury
             </span>
           </h1>
         </Reveal>
 
         <Reveal delay={0.2}>
-          <p className="mt-6 text-lg text-gray-300 font-[var(--font-inter)]">
+          <p className="mt-6 text-lg text-gray-300 font-[var(--font-inter)] tracking-wide">
             Private. Exclusive. Unforgettable.
           </p>
         </Reveal>
@@ -89,9 +104,12 @@ export default function HeroParallax() {
           <div className="mt-10">
             <a
               href="/tours"
-              className="px-10 py-4 rounded-full border border-yellow-500/40 bg-yellow-500/10 backdrop-blur-md text-yellow-400 hover:bg-yellow-500 hover:text-black transition-all duration-300"
+              className="group relative px-10 py-4 rounded-full border border-yellow-500/40 bg-yellow-500/10 backdrop-blur-md text-yellow-400 overflow-hidden transition-all duration-500 hover:bg-yellow-500 hover:text-black"
             >
-              Explore Tours
+              <span className="relative z-10">Explore Tours</span>
+
+              {/* subtle animated shimmer */}
+              <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transform-gpu" />
             </a>
           </div>
         </Reveal>
