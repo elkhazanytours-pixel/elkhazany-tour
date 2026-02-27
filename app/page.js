@@ -39,25 +39,25 @@ export default function Home() {
             {[
               {
                 title: "Pyramids & Sphinx Exclusive",
-                price: "$2,499",
+                price: "$149",
                 img: "/pyramids.jpg",
                 desc: "Private guided tour of the Great Pyramids and Sphinx.",
               },
               {
                 title: "Luxury Nile River Cruise",
-                price: "$3,999",
+                price: "899",
                 img: "/nile.jpg",
                 desc: "5-star cruise along the Nile with temple stops.",
               },
               {
                 title: "Abu Simbel Adventure",
-                price: "$1,899",
+                price: "$89",
                 img: "/abu-simbel.jpg",
                 desc: "Explore the magnificent temples of Ramesses II.",
               },
               {
                 title: "Red Sea Paradise",
-                price: "$2,299",
+                price: "$59",
                 img: "/red-sea.jpg",
                 desc: "Luxury resort stay with diving & safari.",
               },

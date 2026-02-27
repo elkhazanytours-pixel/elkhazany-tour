@@ -107,8 +107,8 @@ const matchesPrice = Number(basePrice) <= Number(maxPrice);
                   </div>
                   <input
                     type="range"
-                    min="500"
-                    max="5000"
+                    min="0"
+                    max="1500"
                     step="100"
                     value={maxPrice}
                     onChange={(e) => setMaxPrice(Number(e.target.value))}
