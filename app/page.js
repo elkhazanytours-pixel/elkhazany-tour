@@ -3,6 +3,7 @@
 import Navbar from "../components/Navbar";
 import Reveal from "../components/Reveal";
 import HeroParallax from "../components/HeroParallax";
+import TrustBar from "../components/TrustBar";
 import TestimonialsSwiper from "../components/TestimonialsSwiper";
 
 export default function Home() {
@@ -12,6 +13,9 @@ export default function Home() {
 
       {/* Ultra Premium Hero */}
       <HeroParallax />
+
+      {/* Trust Layer */}
+      <TrustBar />
 
       {/* Featured Tours */}
       <section className="py-24 bg-[#0B0B0F] text-white">

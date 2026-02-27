@@ -1,6 +1,7 @@
 "use client";
 
 import { useLayoutEffect, useRef } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Reveal from "./Reveal";
@@ -23,7 +24,7 @@ export default function HeroParallax() {
         ease: "power3.out",
       });
 
-      // Parallax background stronger cinematic feel
+      // Parallax background
       gsap.to(bgRef.current, {
         yPercent: 18,
         scale: 1.12,
@@ -36,7 +37,7 @@ export default function HeroParallax() {
         },
       });
 
-      // premium glow movement
+      // Premium glow movement
       gsap.to(glowRef.current, {
         yPercent: -22,
         opacity: 0.65,
@@ -58,12 +59,17 @@ export default function HeroParallax() {
       ref={sectionRef}
       className="relative h-screen flex items-center justify-center text-center overflow-hidden"
     >
-      {/* Background image */}
+      {/* ✅ LCP Hero Image (priority + next/image) */}
       <div ref={bgRef} className="absolute inset-0 will-change-transform">
-        <img
+        <Image
           src="/hero.jpg"
-          className="w-full h-full object-cover scale-105"
           alt="Egypt Luxury"
+          fill
+          priority
+          sizes="100vw"
+          quality={90}
+          className="object-cover scale-105"
+          fetchPriority="high"
         />
       </div>
 
@@ -72,19 +78,13 @@ export default function HeroParallax() {
       <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black/90" />
 
       {/* Premium glow */}
-      <div
-        ref={glowRef}
-        className="absolute inset-0 pointer-events-none opacity-50"
-      >
+      <div ref={glowRef} className="absolute inset-0 pointer-events-none opacity-50">
         <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-yellow-500/20 blur-3xl rounded-full" />
         <div className="absolute -bottom-48 -left-48 w-[560px] h-[560px] bg-yellow-500/15 blur-3xl rounded-full" />
       </div>
 
       {/* Content */}
-      <div
-        ref={contentRef}
-        className="relative z-10 max-w-4xl px-6"
-      >
+      <div ref={contentRef} className="relative z-10 max-w-4xl px-6">
         <Reveal>
           <h1 className="text-6xl md:text-7xl font-[var(--font-playfair)] font-bold leading-tight text-white tracking-wide">
             Discover Egypt

@@ -13,7 +13,7 @@ export default function Contact() {
     setSent(true);
   }
 
-  const whatsappNumber = "201000000000"; // اكتب رقمك هنا بدون +
+  const whatsappNumber = "201021021296"; // اكتب رقمك هنا بدون +
 
   useEffect(() => {
     function onKeyDown(e) {
