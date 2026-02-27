@@ -45,7 +45,7 @@ export default function Home() {
               },
               {
                 title: "Luxury Nile River Cruise",
-                price: "899",
+                price: "$899",
                 img: "/nile.jpg",
                 desc: "5-star cruise along the Nile with temple stops.",
               },
