@@ -8,30 +8,38 @@ import { Inter, Playfair_Display } from "next/font/google";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-playfair", display: "swap" });
 
+// ✅ Use your real domain (and keep it future-proof)
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://elkhazanytour.com").replace(/\/+$/, "");
+
 export const metadata = {
-  metadataBase: new URL("https://elkhazany-tour.vercel.app"),
+  metadataBase: new URL(SITE_URL),
+  alternates: { canonical: SITE_URL },
+
   title: {
-    default: "El Khazany Tour | Luxury Private Tours in Egypt",
+    default: "Luxury Private Tours in Egypt | El Khazany Tour",
     template: "%s | El Khazany Tour",
   },
   description:
     "Luxury private tours in Egypt — curated VIP experiences in Luxor, Cairo, Aswan, and the Nile. Licensed guides, premium service, no hidden fees.",
+
   openGraph: {
     type: "website",
     siteName: "El Khazany Tour",
-    url: "https://elkhazany-tour.vercel.app",
-    title: "El Khazany Tour | Luxury Private Tours in Egypt",
+    url: SITE_URL,
+    title: "Luxury Private Tours in Egypt | El Khazany Tour",
     description:
       "Luxury private tours in Egypt — curated VIP experiences with licensed guides and premium service.",
     images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "El Khazany Tour — Luxury Egypt Travel" }],
   },
+
   twitter: {
     card: "summary_large_image",
-    title: "El Khazany Tour | Luxury Private Tours in Egypt",
+    title: "Luxury Private Tours in Egypt | El Khazany Tour",
     description:
       "Luxury private tours in Egypt — curated VIP experiences with licensed guides and premium service.",
     images: ["/og-default.jpg"],
   },
+
   icons: { icon: "/favicon.ico" },
 };
 
@@ -40,7 +48,7 @@ export default function RootLayout({ children }) {
     "@context": "https://schema.org",
     "@type": "TravelAgency",
     name: "El Khazany Tour",
-    url: "https://elkhazany-tour.vercel.app",
+    url: SITE_URL,
     email: "elkhazanytours@gmail.com",
     address: {
       "@type": "PostalAddress",
