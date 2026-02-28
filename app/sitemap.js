@@ -1,7 +1,9 @@
 import { TOURS } from "../lib/tours";
 
 export default function sitemap() {
-  const baseUrl = "https://elkhazany-tour.vercel.app";
+  const baseUrl =
+    (process.env.NEXT_PUBLIC_SITE_URL || process.env.SITE_URL || "https://elkhazanytour.com")
+      .replace(/\/+$/, "");
 
   const staticRoutes = ["", "/tours", "/about", "/contact", "/booking"].map((p) => ({
     url: `${baseUrl}${p}`,
