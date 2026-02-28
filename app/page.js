@@ -3,10 +3,13 @@
 import Navbar from "../components/Navbar";
 import Reveal from "../components/Reveal";
 import HeroParallax from "../components/HeroParallax";
-import TrustBar from "../components/TrustBar";
 import TestimonialsSwiper from "../components/TestimonialsSwiper";
+import TrustBar from "../components/TrustBar";
+import { TOURS, getTourPriceFrom, formatUSD } from "../lib/tours";
 
 export default function Home() {
+  const featured = TOURS.slice(0, 4);
+
   return (
     <main className="overflow-x-hidden bg-[#0B0B0F] text-white">
       <Navbar />
@@ -29,77 +32,61 @@ export default function Home() {
                 </span>
               </h2>
               <p className="mt-4 text-gray-300 font-[var(--font-inter)]">
-                Handpicked exclusive experiences designed for the discerning
-                traveler
+                Handpicked exclusive experiences designed for the discerning traveler
               </p>
             </div>
           </Reveal>
 
           <div className="grid md:grid-cols-4 gap-8">
-            {[
-              {
-                title: "Pyramids & Sphinx Exclusive",
-                price: "$149",
-                img: "/pyramids.jpg",
-                desc: "Private guided tour of the Great Pyramids and Sphinx.",
-              },
-              {
-                title: "Luxury Nile River Cruise",
-                price: "$899",
-                img: "/nile.jpg",
-                desc: "5-star cruise along the Nile with temple stops.",
-              },
-              {
-                title: "Abu Simbel Adventure",
-                price: "$89",
-                img: "/abu-simbel.jpg",
-                desc: "Explore the magnificent temples of Ramesses II.",
-              },
-              {
-                title: "Red Sea Paradise",
-                price: "$59",
-                img: "/red-sea.jpg",
-                desc: "Luxury resort stay with diving & safari.",
-              },
-            ].map((t, i) => (
-              <Reveal key={i} delay={i * 0.1}>
-                <div className="group bg-white/5 backdrop-blur-2xl border border-white/12 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.55)] hover:shadow-[0_0_45px_rgba(255,200,0,0.22)] transition">
-                  <div className="relative h-56 overflow-hidden">
-                    <img
-                      src={t.img}
-                      alt={t.title}
-                      className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-500"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/0" />
-                    <div className="absolute top-4 right-4 bg-yellow-500/90 text-black font-semibold px-5 py-2 rounded-full">
-                      {t.price}
+            {featured.map((t, i) => {
+              const from = getTourPriceFrom(t);
+              return (
+                <Reveal key={t.slug} delay={i * 0.1}>
+                  <a
+                    href={`/tours/${t.slug}`}
+                    className="group block bg-white/5 backdrop-blur-2xl border border-white/12 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.55)] hover:shadow-[0_0_45px_rgba(255,200,0,0.22)] transition"
+                  >
+                    <div className="relative h-56 overflow-hidden">
+                      <img
+                        src={t.image}
+                        alt={t.title}
+                        className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-500"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/0" />
+
+                      {/* ✅ always with $ and From */}
+                      <div className="absolute top-4 right-4 bg-yellow-500/90 text-black font-semibold px-5 py-2 rounded-full">
+                        From ${formatUSD(from)}
+                      </div>
                     </div>
-                  </div>
 
-                  <div className="p-7">
-                    <h3 className="text-2xl font-[var(--font-playfair)] font-bold mb-3">
-                      {t.title}
-                    </h3>
+                    <div className="p-7">
+                      <h3 className="text-2xl font-[var(--font-playfair)] font-bold mb-3">
+                        {t.title}
+                      </h3>
 
-                    <p className="text-gray-300 font-[var(--font-inter)] text-sm leading-relaxed mb-6">
-                      {t.desc}
-                    </p>
+                      <p className="text-gray-300 font-[var(--font-inter)] text-sm leading-relaxed mb-6">
+                        {t.shortDesc}
+                      </p>
 
-                    <a
-                      href="/tours"
-                      className="block text-center px-6 py-3 rounded-full border border-yellow-500/35 bg-yellow-500/10 text-yellow-300 hover:bg-yellow-500 hover:text-black transition"
-                    >
-                      View Details
-                    </a>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+                      <div className="flex items-center justify-between text-xs text-white/70 mb-6">
+                        <span>⌛ {t.duration}</span>
+                        <span>📍 {t.location}</span>
+                      </div>
+
+                      <div className="block text-center px-6 py-3 rounded-full border border-yellow-500/35 bg-yellow-500/10 text-yellow-300 hover:bg-yellow-500 hover:text-black transition">
+                        View Details
+                      </div>
+                    </div>
+                  </a>
+                </Reveal>
+              );
+            })}
           </div>
         </div>
       </section>
 
-      {/* Testimonials (Swiper Ultra Premium) */}
+      {/* Testimonials */}
       <section className="py-24 bg-[#07070A] text-white border-y border-white/5">
         <div className="max-w-7xl mx-auto px-6">
           <Reveal>
@@ -137,8 +124,8 @@ export default function Home() {
               </h3>
 
               <p className="mt-5 text-gray-300 font-[var(--font-inter)] max-w-2xl mx-auto">
-                Tell us your dream itinerary — we’ll craft a luxury experience
-                with private guiding, premium comfort, and unforgettable moments.
+                Tell us your dream itinerary — we’ll craft a luxury experience with private guiding,
+                premium comfort, and unforgettable moments.
               </p>
 
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">

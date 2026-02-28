@@ -67,7 +67,7 @@ export default function HeroParallax() {
           fill
           priority
           sizes="100vw"
-          quality={90}
+          quality={75}
           className="object-cover scale-105"
           fetchPriority="high"
         />

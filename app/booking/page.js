@@ -13,27 +13,59 @@ export default function BookingPage() {
   );
 }
 
+function normalizeText(s = "") {
+  return String(s)
+    .toLowerCase()
+    .replace(/&/g, " ") // مهم: ما نعملش "and" عشان ما يبوّظش slug
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function findTour(tourSlug, tourTitle) {
+  if (tourSlug) {
+    const bySlug = TOURS.find((t) => t.slug === tourSlug);
+    if (bySlug) return bySlug;
+  }
+  if (tourTitle) {
+    const n = normalizeText(tourTitle);
+    const byTitle = TOURS.find((t) => normalizeText(t.title) === n);
+    if (byTitle) return byTitle;
+  }
+  return null;
+}
+
+function findPackage(tour, pkgName) {
+  if (!tour?.packages?.length) return null;
+  if (!pkgName) return tour.packages[0];
+
+  const n = normalizeText(pkgName);
+  return tour.packages.find((p) => normalizeText(p.name) === n) || tour.packages[0];
+}
+
 function Booking() {
   const searchParams = useSearchParams();
 
   const initial = useMemo(() => {
-    const tourTitleRaw = (searchParams.get("tour") || "").trim();
-    const tourSlugFromUrlRaw = (searchParams.get("tour_slug") || "").trim();
-    const pkgRaw = (searchParams.get("package") || "").trim();
-    const price = Number(searchParams.get("price")) || 0;
+    const tourTitle = decodeURIComponent((searchParams.get("tour") || "").trim());
+    const tourSlugFromUrl = decodeURIComponent((searchParams.get("tour_slug") || searchParams.get("slug") || "").trim());
+    const pkg = decodeURIComponent((searchParams.get("package") || "").trim());
+    const priceFromUrl = Number(searchParams.get("price")) || 0;
 
-    const tourTitle = decodeURIComponent(tourTitleRaw);
-    const tourSlugFromUrl = decodeURIComponent(tourSlugFromUrlRaw);
-    const pkg = decodeURIComponent(pkgRaw);
+    const tour = findTour(tourSlugFromUrl, tourTitle);
+    const resolvedSlug = tour?.slug || tourSlugFromUrl || "";
 
-    const bySlug = tourSlugFromUrl ? TOURS.find((t) => t.slug === tourSlugFromUrl) : null;
-    const byTitle = tourTitle
-      ? TOURS.find((t) => t.title.toLowerCase() === tourTitle.toLowerCase())
-      : null;
+    const selectedPackage = findPackage(tour, pkg);
+    const priceFromData = Number(selectedPackage?.price) || 0;
 
-    const resolvedSlug = tourSlugFromUrl || bySlug?.slug || byTitle?.slug || "";
+    // ✅ لو price مش موجود في الرابط، ناخده من lib/tours.js حسب الباكدج
+    const resolvedPrice = priceFromUrl || priceFromData;
 
-    return { tourTitle, tourSlug: resolvedSlug, pkg, price };
+    return {
+      tourTitle: tour?.title || tourTitle,
+      tourSlug: resolvedSlug,
+      pkg: selectedPackage?.name || pkg,
+      price: resolvedPrice,
+    };
   }, [searchParams]);
 
   const [form, setForm] = useState({
@@ -93,7 +125,6 @@ New Booking Request
 Booking Code: ${bookingCode}
 
 Tour: ${form.tour_name}
-Tour Slug: ${form.tour_slug}
 Package: ${form.package_name || "-"}
 Price/Person: $${price}
 Guests: ${guests}
@@ -109,7 +140,7 @@ Notes: ${form.notes || "-"}
     return `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
   };
 
-  // ✅ إنشاء الحجز من API الآمن
+  // ✅ إنشاء الحجز من API
   const createBooking = async () => {
     const payload = {
       tour_name: form.tour_name,
@@ -140,7 +171,7 @@ Notes: ${form.notes || "-"}
     return data?.data; // booking row
   };
 
-  // ✅ إرسال الإيميل الرسمي (نفس API الحالي)
+  // ✅ إرسال الإيميل الرسمي
   const sendOfficialEmail = async (bookingRow) => {
     const payload = {
       booking_id: bookingRow?.id || null,
@@ -188,7 +219,7 @@ Notes: ${form.notes || "-"}
       const bookingRow = await createBooking();
       const code = bookingRow?.booking_code || bookingRow?.id || "—";
       window.open(buildWA(code), "_blank", "noopener,noreferrer");
-      setStatus("✅ Booking saved securely + WhatsApp opened.");
+      setStatus(`✅ Booking saved securely. Code: ${code} — WhatsApp opened.`);
     } catch (err) {
       setStatus(`❌ Error: ${err?.message || "Unknown error"}`);
     } finally {
@@ -208,8 +239,9 @@ Notes: ${form.notes || "-"}
     setLoading(true);
     try {
       const bookingRow = await createBooking();
+      const code = bookingRow?.booking_code || bookingRow?.id || "—";
       await sendOfficialEmail(bookingRow);
-      setStatus("✅ Booking saved securely + Official email sent!");
+      setStatus(`✅ Booking saved securely. Code: ${code} — Official email sent!`);
     } catch (err) {
       setStatus(`❌ Error: ${err?.message || "Unknown error"}`);
     } finally {
@@ -226,6 +258,7 @@ Notes: ${form.notes || "-"}
           Confirm <span className="text-yellow-400">Booking</span>
         </h1>
 
+        {/* Summary */}
         <div className="bg-white/5 border border-white/10 rounded-3xl p-8 mb-8 shadow-[0_20px_60px_rgba(0,0,0,0.45)]">
           <div className="space-y-2 text-white/90">
             <p><strong>Tour:</strong> {form.tour_name || "—"}</p>
@@ -240,7 +273,7 @@ Notes: ${form.notes || "-"}
               type="number"
               min="1"
               value={guests}
-              onChange={(e) => update("guests", e.target.value)}
+              onChange={(e) => update("guests", Number(e.target.value))}
               className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
             />
           </div>
@@ -248,6 +281,7 @@ Notes: ${form.notes || "-"}
           <p className="text-2xl font-bold text-yellow-400 mt-6">Total: ${total}</p>
         </div>
 
+        {/* Form */}
         <form
           onSubmit={handleWhatsApp}
           className="bg-white/5 border border-white/10 rounded-3xl p-8 shadow-[0_20px_60px_rgba(0,0,0,0.45)]"
