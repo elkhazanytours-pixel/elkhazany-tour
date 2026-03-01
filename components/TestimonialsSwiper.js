@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Pagination, Navigation, EffectCoverflow } from "swiper/modules";
+import { Autoplay, Pagination, EffectCoverflow } from "swiper/modules";
 
 import "swiper/css";
 import "swiper/css/pagination";
-import "swiper/css/navigation";
 import "swiper/css/effect-coverflow";
 
 export default function TestimonialsSwiper() {
@@ -43,7 +43,7 @@ export default function TestimonialsSwiper() {
   return (
     <div className="relative">
       <Swiper
-        modules={[Autoplay, Pagination, Navigation, EffectCoverflow]}
+        modules={[Autoplay, Pagination, EffectCoverflow]}
         effect="coverflow"
         grabCursor
         centeredSlides
@@ -52,7 +52,6 @@ export default function TestimonialsSwiper() {
         spaceBetween={24}
         autoplay={{ delay: 2600, disableOnInteraction: false }}
         pagination={{ clickable: true }}
-        navigation
         coverflowEffect={{
           rotate: 0,
           stretch: 0,
@@ -80,11 +79,14 @@ export default function TestimonialsSwiper() {
               </p>
 
               <div className="mt-8 pt-6 border-t border-white/10 flex items-center gap-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden border border-yellow-500/40">
-                  <img
+                <div className="w-14 h-14 rounded-full overflow-hidden border border-yellow-500/40 relative">
+                  <Image
                     src={t.img}
                     alt={t.name}
-                    className="w-full h-full object-cover"
+                    fill
+                    sizes="56px"
+                    quality={70}
+                    className="object-cover"
                   />
                 </div>
 
@@ -102,7 +104,6 @@ export default function TestimonialsSwiper() {
         ))}
       </Swiper>
 
-      {/* Ultra premium dots + arrows */}
       <style jsx global>{`
         .swiper-pagination-bullet {
           background: rgba(255, 200, 0, 0.35);
@@ -111,16 +112,6 @@ export default function TestimonialsSwiper() {
         .swiper-pagination-bullet-active {
           background: rgba(255, 200, 0, 0.95);
           box-shadow: 0 0 18px rgba(255, 200, 0, 0.35);
-        }
-        .swiper-button-prev,
-        .swiper-button-next {
-          color: rgba(255, 200, 0, 0.95);
-          text-shadow: 0 0 18px rgba(255, 200, 0, 0.22);
-        }
-        .swiper-button-prev:after,
-        .swiper-button-next:after {
-          font-size: 18px;
-          font-weight: 700;
         }
       `}</style>
     </div>

@@ -1,11 +1,20 @@
 "use client";
 
+import dynamic from "next/dynamic";
+import Image from "next/image";
+import Link from "next/link";
+
 import Navbar from "../components/Navbar";
 import Reveal from "../components/Reveal";
 import HeroParallax from "../components/HeroParallax";
-import TestimonialsSwiper from "../components/TestimonialsSwiper";
 import TrustBar from "../components/TrustBar";
 import { TOURS, getTourPriceFrom, formatUSD } from "../lib/tours";
+
+// ✅ Lazy-load heavy swiper bundle + CSS
+const TestimonialsSwiper = dynamic(
+  () => import("../components/TestimonialsSwiper"),
+  { ssr: false }
+);
 
 export default function Home() {
   const featured = TOURS.slice(0, 4);
@@ -40,21 +49,26 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8">
             {featured.map((t, i) => {
               const from = getTourPriceFrom(t);
+
               return (
                 <Reveal key={t.slug} delay={i * 0.1}>
-                  <a
+                  <Link
                     href={`/tours/${t.slug}`}
                     className="group block bg-white/5 backdrop-blur-2xl border border-white/12 rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.55)] hover:shadow-[0_0_45px_rgba(255,200,0,0.22)] transition"
                   >
                     <div className="relative h-56 overflow-hidden">
-                      <img
+                      {/* ✅ Next Image (lazy by default) */}
+                      <Image
                         src={t.image}
                         alt={t.title}
-                        className="w-full h-full object-cover group-hover:scale-[1.03] transition duration-500"
+                        fill
+                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                        quality={72}
+                        className="object-cover group-hover:scale-[1.03] transition duration-500"
                       />
+
                       <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/0" />
 
-                      {/* ✅ always with $ and From */}
                       <div className="absolute top-4 right-4 bg-yellow-500/90 text-black font-semibold px-5 py-2 rounded-full">
                         From ${formatUSD(from)}
                       </div>
@@ -78,7 +92,7 @@ export default function Home() {
                         View Details
                       </div>
                     </div>
-                  </a>
+                  </Link>
                 </Reveal>
               );
             })}
@@ -103,6 +117,7 @@ export default function Home() {
             </div>
           </Reveal>
 
+          {/* ✅ Loaded later */}
           <TestimonialsSwiper />
         </div>
       </section>
@@ -129,18 +144,18 @@ export default function Home() {
               </p>
 
               <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-                <a
+                <Link
                   href="/booking"
                   className="px-10 py-4 rounded-full bg-yellow-500 text-black font-semibold hover:shadow-[0_0_25px_rgba(255,200,0,0.45)] hover:scale-[1.02] transition"
                 >
                   Book Now
-                </a>
-                <a
+                </Link>
+                <Link
                   href="/contact"
                   className="px-10 py-4 rounded-full border border-yellow-500/35 bg-yellow-500/10 text-yellow-300 hover:bg-yellow-500 hover:text-black transition"
                 >
                   Contact VIP Team
-                </a>
+                </Link>
               </div>
             </div>
           </Reveal>

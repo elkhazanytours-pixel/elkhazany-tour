@@ -2,11 +2,7 @@
 
 import { useLayoutEffect, useRef } from "react";
 import Image from "next/image";
-import { gsap } from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Reveal from "./Reveal";
-
-gsap.registerPlugin(ScrollTrigger);
 
 export default function HeroParallax() {
   const sectionRef = useRef(null);
@@ -15,43 +11,58 @@ export default function HeroParallax() {
   const contentRef = useRef(null);
 
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      // Cinematic intro animation
-      gsap.from(contentRef.current, {
-        opacity: 0,
-        y: 60,
-        duration: 1.2,
-        ease: "power3.out",
-      });
+    let ctx;
+    let killed = false;
 
-      // Parallax background
-      gsap.to(bgRef.current, {
-        yPercent: 18,
-        scale: 1.12,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
+    (async () => {
+      const gsapModule = await import("gsap");
+      const stModule = await import("gsap/ScrollTrigger");
 
-      // Premium glow movement
-      gsap.to(glowRef.current, {
-        yPercent: -22,
-        opacity: 0.65,
-        ease: "none",
-        scrollTrigger: {
-          trigger: sectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: true,
-        },
-      });
-    }, sectionRef);
+      if (killed) return;
 
-    return () => ctx.revert();
+      const gsap = gsapModule.gsap || gsapModule.default || gsapModule;
+      const ScrollTrigger = stModule.ScrollTrigger || stModule.default;
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      ctx = gsap.context(() => {
+        gsap.from(contentRef.current, {
+          opacity: 0,
+          y: 60,
+          duration: 1.0,
+          ease: "power3.out",
+        });
+
+        gsap.to(bgRef.current, {
+          yPercent: 18,
+          scale: 1.12,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+
+        gsap.to(glowRef.current, {
+          yPercent: -22,
+          opacity: 0.65,
+          ease: "none",
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: true,
+          },
+        });
+      }, sectionRef);
+    })();
+
+    return () => {
+      killed = true;
+      if (ctx) ctx.revert();
+    };
   }, []);
 
   return (
@@ -59,31 +70,30 @@ export default function HeroParallax() {
       ref={sectionRef}
       className="relative h-screen flex items-center justify-center text-center overflow-hidden"
     >
-      {/* ✅ LCP Hero Image (priority + next/image) */}
+      {/* ✅ LCP Hero Image */}
       <div ref={bgRef} className="absolute inset-0 will-change-transform">
         <Image
           src="/hero.jpg"
-          alt="Egypt Luxury"
+          alt="Luxury Private Tours in Egypt"
           fill
           priority
           sizes="100vw"
-          quality={75}
+          quality={72}
           className="object-cover scale-105"
-          fetchPriority="high"
         />
       </div>
 
-      {/* Cinematic overlays */}
+      {/* overlays */}
       <div className="absolute inset-0 bg-black/75" />
       <div className="absolute inset-0 bg-gradient-to-b from-black/90 via-transparent to-black/90" />
 
-      {/* Premium glow */}
+      {/* glow */}
       <div ref={glowRef} className="absolute inset-0 pointer-events-none opacity-50">
         <div className="absolute -top-40 -right-40 w-[520px] h-[520px] bg-yellow-500/20 blur-3xl rounded-full" />
         <div className="absolute -bottom-48 -left-48 w-[560px] h-[560px] bg-yellow-500/15 blur-3xl rounded-full" />
       </div>
 
-      {/* Content */}
+      {/* content */}
       <div ref={contentRef} className="relative z-10 max-w-4xl px-6">
         <Reveal>
           <h1 className="text-6xl md:text-7xl font-[var(--font-playfair)] font-bold leading-tight text-white tracking-wide">
@@ -107,8 +117,6 @@ export default function HeroParallax() {
               className="group relative px-10 py-4 rounded-full border border-yellow-500/40 bg-yellow-500/10 backdrop-blur-md text-yellow-400 overflow-hidden transition-all duration-500 hover:bg-yellow-500 hover:text-black"
             >
               <span className="relative z-10">Explore Tours</span>
-
-              {/* subtle animated shimmer */}
               <span className="absolute inset-0 opacity-0 group-hover:opacity-100 transition duration-700 bg-gradient-to-r from-transparent via-yellow-400/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transform-gpu" />
             </a>
           </div>
