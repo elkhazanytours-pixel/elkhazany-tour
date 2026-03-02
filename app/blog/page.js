@@ -53,6 +53,14 @@ const posts = [
   readingMinutes: 9,
   date: "Mar 01, 2026",
 },
+
+{
+  title: "Best Sunset in Luxor (2026) — Time, Best Spots & Private Options",
+  slug: "best-sunset-in-luxor",
+  excerpt:
+    "The ultimate Luxor sunset guide: best spots, ideal timing, West Bank vs East Bank, and private luxury options like a felucca sail.",
+  tag: "Luxor Guide",
+}
   // 🔥 لما تعمل مقالات جديدة، زودهم هنا بنفس الشكل
   // {
   //   slug: "best-time-to-visit-luxor",
