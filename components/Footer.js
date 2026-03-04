@@ -217,8 +217,8 @@ export default function Footer() {
 
           <div className="flex gap-6 text-gray-400 text-sm">
             {/* لو عندك صفحات فعلية هنربطها لاحقًا */}
-            <a href="#" className="hover:text-yellow-400 transition">Privacy Policy</a>
-            <a href="#" className="hover:text-yellow-400 transition">Terms</a>
+            <a href="/privacy" className="hover:text-yellow-400 transition">Privacy Policy</a>
+            <a href="/terms" className="hover:text-yellow-400 transition">Terms</a>
           </div>
         </div>
       </div>
