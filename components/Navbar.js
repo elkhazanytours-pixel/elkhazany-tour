@@ -22,6 +22,7 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-10 text-gray-200 font-[var(--font-inter)]">
             <Link href="/" className="hover:text-yellow-400 transition">Home</Link>
             <Link href="/tours" className="hover:text-yellow-400 transition">Tours</Link>
+            <Link href="/luxor-private-tours" className="hover:text-yellow-400 transition">Private Tours</Link>
             <Link href="/blog" className="hover:text-yellow-400 transition">Blog</Link>
             <Link href="/about" className="hover:text-yellow-400 transition">About</Link>
             <Link href="/contact" className="hover:text-yellow-400 transition">Contact</Link>
