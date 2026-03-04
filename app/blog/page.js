@@ -60,7 +60,7 @@ const posts = [
   excerpt:
     "The ultimate Luxor sunset guide: best spots, ideal timing, West Bank vs East Bank, and private luxury options like a felucca sail.",
   tag: "Luxor Guide",
-}
+},
 
 {
   slug: "luxor-travel-guide-2026",
@@ -70,7 +70,7 @@ const posts = [
   title: "Luxor Travel Guide (2026): Temples, Itinerary, Tips & Best Tours",
   excerpt:
     "The ultimate Luxor guide — best temples, a practical 2–3 day itinerary, safety tips, best time to visit, and VIP private tour options.",
-}
+},
   // 🔥 لما تعمل مقالات جديدة، زودهم هنا بنفس الشكل
   // {
   //   slug: "best-time-to-visit-luxor",
