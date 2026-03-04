@@ -69,7 +69,7 @@ const posts = [
   readTime: "9 min read",
   title: "Luxor Travel Guide (2026): Temples, Itinerary, Tips & Best Tours",
   excerpt:
-    "The ultimate Luxor guide — best temples, a practical 2–3 day itinerary, safety tips, best time to visit, and VIP private tour options.",
+    "The ultimate Luxor travel guide — temples, a practical 2–3 day itinerary, safety tips, best time to visit, and VIP private tour options.",
 },
   // 🔥 لما تعمل مقالات جديدة، زودهم هنا بنفس الشكل
   // {
