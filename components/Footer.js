@@ -93,7 +93,22 @@ export default function Footer() {
               <Star size={16} className="text-yellow-400" />
               Leave a Google Review
             </a>
-
+            {/* ⭐ Rated on Google (Trust Badge) */}
+            <a
+              href={GOOGLE_REVIEWS_LINK}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-3 inline-flex items-center gap-2 text-white/70 hover:text-yellow-200 transition"
+              aria-label="Rated on Google"
+            >
+             <span className="inline-flex items-center gap-[2px] text-yellow-400">
+             <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+             </span>
+             <span className="text-xs">
+             Rated on Google • 5★ Reviews
+             </span>
+             </a>
+            
             {/* Trust line */}
             <p className="mt-3 text-xs text-white/55">
               ⭐ Trusted VIP experiences — fast WhatsApp support & premium itineraries.
