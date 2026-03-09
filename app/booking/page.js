@@ -16,7 +16,7 @@ export default function BookingPage() {
 function normalizeText(s = "") {
   return String(s)
     .toLowerCase()
-    .replace(/&/g, " ") // مهم: ما نعملش "and" عشان ما يبوّظش slug
+    .replace(/&/g, " ")
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 }
@@ -37,10 +37,15 @@ function findTour(tourSlug, tourTitle) {
 function findPackage(tour, pkgName) {
   if (!tour?.packages?.length) return null;
   if (!pkgName) return tour.packages[0];
-
   const n = normalizeText(pkgName);
   return tour.packages.find((p) => normalizeText(p.name) === n) || tour.packages[0];
 }
+
+// ✅ Children pricing rules
+const CHILD_GROUPS = [
+  { label: "Ages 2–6 (Free)", value: "2-6", discount: 1.0 },   // 100% off = free
+  { label: "Ages 7–12 (50% off)", value: "7-12", discount: 0.5 }, // 50% off
+];
 
 function Booking() {
   const searchParams = useSearchParams();
@@ -53,11 +58,8 @@ function Booking() {
 
     const tour = findTour(tourSlugFromUrl, tourTitle);
     const resolvedSlug = tour?.slug || tourSlugFromUrl || "";
-
     const selectedPackage = findPackage(tour, pkg);
     const priceFromData = Number(selectedPackage?.price) || 0;
-
-    // ✅ لو price مش موجود في الرابط، ناخده من lib/tours.js حسب الباكدج
     const resolvedPrice = priceFromUrl || priceFromData;
 
     return {
@@ -74,7 +76,6 @@ function Booking() {
     package_name: "",
     price_per_person: 0,
     guests: 2,
-
     full_name: "",
     email: "",
     phone: "",
@@ -82,6 +83,11 @@ function Booking() {
     preferred_contact: "WhatsApp",
     notes: "",
   });
+
+  // ✅ Children state
+  const [childGroups, setChildGroups] = useState([
+    { ageGroup: "2-6", count: 0 },
+  ]);
 
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState("");
@@ -99,9 +105,37 @@ function Booking() {
 
   const price = Number(form.price_per_person || 0);
   const guests = Math.max(1, Number(form.guests || 1));
-  const total = Number(price) * Number(guests);
+
+  // ✅ Calculate children cost
+  const childrenCost = childGroups.reduce((sum, g) => {
+    const group = CHILD_GROUPS.find((c) => c.value === g.ageGroup);
+    const discount = group?.discount ?? 0;
+    const childPrice = price * (1 - discount); // e.g. 2-6 → price*0 = free, 7-12 → price*0.5
+    return sum + childPrice * Math.max(0, Number(g.count || 0));
+  }, 0);
+
+  const totalChildren = childGroups.reduce((s, g) => s + Math.max(0, Number(g.count || 0)), 0);
+  const adultTotal = price * guests;
+  const total = adultTotal + childrenCost;
 
   const update = (k, v) => setForm((p) => ({ ...p, [k]: v }));
+
+  const updateChild = (idx, field, val) => {
+    setChildGroups((prev) => prev.map((g, i) => i === idx ? { ...g, [field]: val } : g));
+  };
+
+  const addChildGroup = () => {
+    if (childGroups.length < 2) {
+      // Add the other group not yet added
+      const existing = childGroups.map((g) => g.ageGroup);
+      const other = CHILD_GROUPS.find((c) => !existing.includes(c.value));
+      if (other) setChildGroups((prev) => [...prev, { ageGroup: other.value, count: 0 }]);
+    }
+  };
+
+  const removeChildGroup = (idx) => {
+    setChildGroups((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const validate = () => {
     const missing = [];
@@ -113,6 +147,14 @@ function Booking() {
     if (!form.phone?.trim()) missing.push("phone");
     return missing;
   };
+
+  const childrenSummary = childGroups
+    .filter((g) => Number(g.count) > 0)
+    .map((g) => {
+      const label = CHILD_GROUPS.find((c) => c.value === g.ageGroup)?.label || g.ageGroup;
+      return `${g.count} child(ren) ${label}`;
+    })
+    .join(", ");
 
   const buildWA = (bookingCode = "—") => {
     const waNumber =
@@ -127,8 +169,9 @@ Booking Code: ${bookingCode}
 Tour: ${form.tour_name}
 Package: ${form.package_name || "-"}
 Price/Person: $${price}
-Guests: ${guests}
-Total: $${total}
+Adults: ${guests}
+${totalChildren > 0 ? `Children: ${childrenSummary}` : "Children: None"}
+Total: $${total.toFixed(2)}
 
 Name: ${form.full_name}
 Email: ${form.email}
@@ -140,7 +183,6 @@ Notes: ${form.notes || "-"}
     return `https://wa.me/${waNumber}?text=${encodeURIComponent(msg)}`;
   };
 
-  // ✅ إنشاء الحجز من API
   const createBooking = async () => {
     const payload = {
       tour_name: form.tour_name,
@@ -148,8 +190,9 @@ Notes: ${form.notes || "-"}
       package_name: form.package_name || null,
       price_per_person: Number(price),
       guests,
-      total_price: Number(total),
-
+      children_details: childGroups.filter((g) => Number(g.count) > 0),
+      total_children: totalChildren,
+      total_price: Number(total.toFixed(2)),
       full_name: form.full_name.trim(),
       email: form.email.trim(),
       phone: form.phone.trim(),
@@ -168,23 +211,22 @@ Notes: ${form.notes || "-"}
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.message || data?.error || "Booking API failed");
-    return data?.data; // booking row
+    return data?.data;
   };
 
-  // ✅ إرسال الإيميل الرسمي
   const sendOfficialEmail = async (bookingRow) => {
     const payload = {
       booking_id: bookingRow?.id || null,
       booking_code: bookingRow?.booking_code || null,
       created_at: bookingRow?.created_at || null,
-
       tour_name: form.tour_name,
       tour_slug: form.tour_slug,
       package_name: form.package_name,
       price_per_person: Number(price),
       guests,
-      total_price: Number(total),
-
+      children_details: childGroups.filter((g) => Number(g.count) > 0),
+      total_children: totalChildren,
+      total_price: Number(total.toFixed(2)),
       full_name: form.full_name,
       email: form.email,
       phone: form.phone,
@@ -207,13 +249,11 @@ Notes: ${form.notes || "-"}
   const handleWhatsApp = async (e) => {
     e.preventDefault();
     setStatus("");
-
     const missing = validate();
     if (missing.length) {
       setStatus(`❌ Missing required fields: ${missing.join(", ")}`);
       return;
     }
-
     setLoading(true);
     try {
       const bookingRow = await createBooking();
@@ -229,13 +269,11 @@ Notes: ${form.notes || "-"}
 
   const handleEmail = async () => {
     setStatus("");
-
     const missing = validate();
     if (missing.length) {
       setStatus(`❌ Missing required fields: ${missing.join(", ")}`);
       return;
     }
-
     setLoading(true);
     try {
       const bookingRow = await createBooking();
@@ -263,22 +301,113 @@ Notes: ${form.notes || "-"}
           <div className="space-y-2 text-white/90">
             <p><strong>Tour:</strong> {form.tour_name || "—"}</p>
             <p><strong>Package:</strong> {form.package_name || "—"}</p>
-            <p><strong>Price per person:</strong> {price ? `$${price}` : "—"}</p>
+            <p><strong>Price per adult:</strong> {price ? `$${price}` : "—"}</p>
             <p className="text-xs text-white/40"><strong>Slug:</strong> {form.tour_slug || "—"}</p>
           </div>
 
+          {/* Adults */}
           <div className="mt-5">
-            <label className="text-sm text-white/70">Number of Guests</label>
+            <label className="text-sm text-white/70">Number of Adults</label>
             <input
               type="number"
               min="1"
               value={guests}
               onChange={(e) => update("guests", Number(e.target.value))}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
             />
           </div>
 
-          <p className="text-2xl font-bold text-yellow-400 mt-6">Total: ${total}</p>
+          {/* ✅ Children Section */}
+          <div className="mt-6 rounded-2xl border border-yellow-500/20 bg-yellow-500/5 p-5">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <p className="text-sm font-semibold text-yellow-300">🧒 Children</p>
+                <p className="text-xs text-white/40 mt-0.5">Ages 2–6 free · Ages 7–12 pay 50%</p>
+              </div>
+              {childGroups.length < 2 && (
+                <button
+                  type="button"
+                  onClick={addChildGroup}
+                  className="text-xs px-3 py-1.5 rounded-full border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500 hover:text-black transition"
+                >
+                  + Add age group
+                </button>
+              )}
+            </div>
+
+            <div className="space-y-3">
+              {childGroups.map((g, idx) => (
+                <div key={idx} className="flex items-center gap-3">
+                  {/* Age group select */}
+                  <select
+                    value={g.ageGroup}
+                    onChange={(e) => updateChild(idx, "ageGroup", e.target.value)}
+                    className="flex-1 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none focus:border-yellow-500 transition"
+                  >
+                    {CHILD_GROUPS.map((c) => (
+                      <option key={c.value} value={c.value}>{c.label}</option>
+                    ))}
+                  </select>
+
+                  {/* Count input */}
+                  <input
+                    type="number"
+                    min="0"
+                    max="10"
+                    value={g.count}
+                    onChange={(e) => updateChild(idx, "count", Number(e.target.value))}
+                    placeholder="0"
+                    className="w-24 rounded-2xl border border-white/10 bg-black/30 px-4 py-3 text-sm outline-none text-center focus:border-yellow-500 transition"
+                  />
+
+                  {/* Remove button (only if more than 1 group) */}
+                  {childGroups.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => removeChildGroup(idx)}
+                      className="text-white/30 hover:text-red-400 transition text-lg leading-none px-1"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Children cost preview */}
+            {totalChildren > 0 && (
+              <div className="mt-4 pt-4 border-t border-white/10 space-y-1 text-sm text-white/60">
+                <div className="flex justify-between">
+                  <span>Adults ({guests} × ${price})</span>
+                  <span>${adultTotal.toFixed(2)}</span>
+                </div>
+                {childGroups.filter((g) => Number(g.count) > 0).map((g, idx) => {
+                  const group = CHILD_GROUPS.find((c) => c.value === g.ageGroup);
+                  const childPrice = price * (1 - (group?.discount ?? 0));
+                  return (
+                    <div key={idx} className="flex justify-between">
+                      <span>{g.count} child(ren) {group?.label}</span>
+                      <span className="text-yellow-300">
+                        {childPrice === 0 ? "Free 🎁" : `$${(childPrice * g.count).toFixed(2)}`}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Total */}
+          <div className="mt-5 flex items-center justify-between">
+            <p className="text-2xl font-bold text-yellow-400">
+              Total: ${total.toFixed(2)}
+            </p>
+            {totalChildren > 0 && (
+              <span className="text-xs text-green-400 bg-green-500/10 border border-green-500/20 px-3 py-1 rounded-full">
+                🎉 Children discount applied
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Form */}
@@ -292,7 +421,7 @@ Notes: ${form.notes || "-"}
               <input
                 value={form.full_name}
                 onChange={(e) => update("full_name", e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
                 placeholder="Your full name"
                 required
               />
@@ -304,7 +433,7 @@ Notes: ${form.notes || "-"}
                 type="email"
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
                 placeholder="you@email.com"
                 required
               />
@@ -315,7 +444,7 @@ Notes: ${form.notes || "-"}
               <input
                 value={form.phone}
                 onChange={(e) => update("phone", e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
                 placeholder="+20 10xxxxxxx"
                 required
               />
@@ -327,7 +456,7 @@ Notes: ${form.notes || "-"}
                 type="date"
                 value={form.tour_date}
                 onChange={(e) => update("tour_date", e.target.value)}
-                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+                className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
               />
             </div>
           </div>
@@ -337,7 +466,7 @@ Notes: ${form.notes || "-"}
             <select
               value={form.preferred_contact}
               onChange={(e) => update("preferred_contact", e.target.value)}
-              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+              className="mt-2 w-full rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
             >
               <option>WhatsApp</option>
               <option>Email</option>
@@ -351,7 +480,7 @@ Notes: ${form.notes || "-"}
               value={form.notes}
               onChange={(e) => update("notes", e.target.value)}
               placeholder="Hotel pickup, language preference, special requests…"
-              className="mt-2 w-full min-h-[120px] rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none"
+              className="mt-2 w-full min-h-[120px] rounded-2xl border border-white/10 bg-black/30 px-4 py-4 outline-none focus:border-yellow-500 transition"
             />
           </div>
 

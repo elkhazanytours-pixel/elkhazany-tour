@@ -51,6 +51,10 @@ function normalizePayload(body) {
     guests: body.guests ?? body.people ?? "",
     preferred_contact: body.preferred_contact || body.preferredContact || "",
     notes: body.notes || "",
+
+    // ✅ Children
+    total_children: body.total_children ?? 0,
+    children_details: Array.isArray(body.children_details) ? body.children_details : [],
   };
 }
 
@@ -67,9 +71,6 @@ export async function POST(req) {
     return jsonError("Invalid JSON body.");
   }
 
-  // kind:
-  // - "booking" (default): send booking request emails
-  // - "status": send status update emails (confirmed/cancelled/pending)
   const kind = (body?.kind || body?.type || "booking").toString().toLowerCase();
 
   const brandName = process.env.BRAND_NAME || "El Khazany Tour";
@@ -94,9 +95,7 @@ export async function POST(req) {
     if (kind === "status") {
       const status = String(body?.status || body?.new_status || data.status || "Pending");
 
-      // 1) Internal notify
       const internal = bookingStatusInternalEmail({ brandName, waNumber, data, status });
-
       await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL,
         to: process.env.BOOKINGS_TO_EMAIL,
@@ -105,9 +104,7 @@ export async function POST(req) {
         reply_to: data.email,
       });
 
-      // 2) Customer notify
       const customer = bookingStatusCustomerEmail({ brandName, waNumber, data, status });
-
       await resend.emails.send({
         from: process.env.RESEND_FROM_EMAIL,
         to: data.email,
@@ -121,7 +118,6 @@ export async function POST(req) {
 
     // default = booking request emails
     const internal = bookingInternalEmail({ brandName, waNumber, data });
-
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: process.env.BOOKINGS_TO_EMAIL,
@@ -131,7 +127,6 @@ export async function POST(req) {
     });
 
     const customer = bookingCustomerEmail({ brandName, waNumber, data });
-
     await resend.emails.send({
       from: process.env.RESEND_FROM_EMAIL,
       to: data.email,

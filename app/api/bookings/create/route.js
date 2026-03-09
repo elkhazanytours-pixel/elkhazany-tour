@@ -42,6 +42,10 @@ export async function POST(req) {
   const price = Number(body.price_per_person || 0);
   const total = Number(body.total_price ?? price * guests);
 
+  // ✅ Children data
+  const childrenDetails = Array.isArray(body.children_details) ? body.children_details : [];
+  const totalChildren = Number(body.total_children || 0);
+
   const payload = {
     tour_name: String(body.tour_name),
     tour_slug: String(body.tour_slug),
@@ -60,6 +64,10 @@ export async function POST(req) {
     tour_date: body.tour_date || null,
     preferred_contact: body.preferred_contact || "WhatsApp",
     notes: body.notes || "",
+
+    // ✅ Children fields
+    total_children: totalChildren,
+    children_details: childrenDetails.length > 0 ? childrenDetails : null,
   };
 
   const { data, error } = await supabase
