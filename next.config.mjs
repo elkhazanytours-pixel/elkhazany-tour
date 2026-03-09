@@ -7,6 +7,12 @@ const nextConfig = {
         destination: "/blog/luxury-private-tours-in-luxor",
         permanent: true,
       },
+      // ✅ Old tour slug → New tour slug (301 redirect)
+      {
+        source: "/tours/luxury-nile-river-cruise",
+        destination: "/tours/nile-cruise-aswan-to-luxor",
+        permanent: true,
+      },
     ];
   },
 };
