@@ -507,6 +507,5 @@ Notes: ${form.notes || "-"}
           </p>
         </form>
       </div>
-    </div>
   );
 }
