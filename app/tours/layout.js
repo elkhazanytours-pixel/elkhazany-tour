@@ -1,11 +1,14 @@
 import Script from "next/script";
 import { TOURS } from "../../lib/tours";
 
+// ✅ Same pattern as root layout — always uses real domain
+const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || "https://elkhazanytour.com").replace(/\/+$/, "");
+
 export const metadata = {
   title: "Tours",
   description:
     "Explore luxury private tours in Egypt — curated experiences in Luxor, Cairo, Aswan, and the Nile with premium service and transparent pricing.",
-  alternates: { canonical: "https://elkhazany-tour.vercel.app/tours" },
+  alternates: { canonical: `${SITE_URL}/tours` },
 };
 
 export default function ToursLayout({ children }) {
@@ -16,7 +19,7 @@ export default function ToursLayout({ children }) {
     itemListElement: TOURS.map((t, i) => ({
       "@type": "ListItem",
       position: i + 1,
-      url: `https://elkhazany-tour.vercel.app/tours/${t.slug}`,
+      url: `${SITE_URL}/tours/${t.slug}`,
       name: t.title,
     })),
   };
