@@ -251,8 +251,8 @@ export default function Page() {
                 </Link>
               </li>
               <li>
-                <Link href="/blog/karnak-temple-guide" className="hover:underline">
-                  Karnak Temple Guide (History + Tips)
+                <Link href="/blog/luxor-travel-guide-2026" className="hover:underline">
+                  Luxor Travel Guide — Temples, Itinerary & Tips (2026)
                 </Link>
               </li>
             </ul>
