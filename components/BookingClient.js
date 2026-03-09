@@ -2,7 +2,7 @@
 
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { TOURS } from "../../lib/tours";
+import { TOURS } from "../lib/tours";
 
 export default function BookingClient() {
   return (
