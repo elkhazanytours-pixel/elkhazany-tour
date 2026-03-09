@@ -1,6 +1,4 @@
 // app/booking/page.js
-// ✅ Server component — Google وAhrefs يقدروا يشوفوا الـ H1 والـ metadata
-
 import Navbar from "../../components/Navbar";
 import BookingClient from "../../components/BookingClient";
 
@@ -16,6 +14,7 @@ export const metadata = {
     url: "/booking",
     siteName: "El Khazany Tour",
     type: "website",
+    images: [{ url: "https://elkhazanytour.com/hero.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
 };
 
@@ -23,15 +22,11 @@ export default function BookingPage() {
   return (
     <main className="min-h-screen bg-[#0B0B0F] text-white">
       <Navbar />
-
-      {/* ✅ H1 مرئي لـ Google وAhrefs */}
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-4">
         <h1 className="text-4xl font-[var(--font-playfair)] font-bold">
           Confirm <span className="text-yellow-400">Booking</span>
         </h1>
       </div>
-
-      {/* ✅ باقي الصفحة client component */}
       <BookingClient />
     </main>
   );

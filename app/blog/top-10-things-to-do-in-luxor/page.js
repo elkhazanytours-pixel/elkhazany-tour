@@ -12,6 +12,7 @@ export const metadata = {
     url: "/blog/top-10-things-to-do-in-luxor",
     siteName: "El Khazany Tour",
     type: "article",
+    images: [{ url: "https://elkhazanytour.com/luxor.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
 };
 

@@ -12,6 +12,7 @@ export const metadata = {
     url: "https://elkhazanytour.com/luxor-private-tours",
     siteName: "El Khazany Tour",
     type: "website",
+    images: [{ url: "https://elkhazanytour.com/luxor.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
   twitter: {
     card: "summary_large_image",

@@ -12,6 +12,7 @@ export const metadata = {
     url: "/blog/luxor-vs-aswan",
     siteName: "El Khazany Tour",
     type: "article",
+    images: [{ url: "https://elkhazanytour.com/nile-cruise.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
 };
 
