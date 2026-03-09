@@ -12,7 +12,7 @@ export const metadata = {
     url: "https://elkhazanytour.com/blog/best-sunset-in-luxor",
     siteName: "El Khazany Tour",
     type: "article",
-    images: [{ url: "https://elkhazanytour.com/nile-cruise.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
+    images: [{ url: "https://elkhazanytour.com/nile-cruise.webp", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
 };
 

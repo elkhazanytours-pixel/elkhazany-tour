@@ -14,7 +14,7 @@ export const metadata = {
     url: "/about",
     siteName: "El Khazany Tour",
     type: "website",
-    images: [{ url: "https://elkhazanytour.com/about.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
+    images: [{ url: "https://elkhazanytour.com/about.webp", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
 };
 
