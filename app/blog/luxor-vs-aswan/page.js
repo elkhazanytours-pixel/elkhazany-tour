@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Luxor vs Aswan: Which One Should You Visit? (2026 Guide) | El Khazany Tour",
+  title: "Luxor vs Aswan: Which One Should You Visit? (2026)",
   description:
     "Luxor vs Aswan — which is better for your Egypt trip? Compare temples, vibe, cruises, time needed, and ideal itineraries in this 2026 guide by El Khazany Tour.",
   alternates: { canonical: "/blog/luxor-vs-aswan" },

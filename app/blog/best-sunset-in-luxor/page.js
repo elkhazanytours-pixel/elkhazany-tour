@@ -1,12 +1,12 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Best Sunset in Luxor (2026) — Time, Best Spots & Private Options",
+  title: "Best Sunset in Luxor (2026) — Spots & Private Options",
   description:
     "Discover the best sunset spots in Luxor, the ideal time to go, West Bank vs East Bank views, and private luxury options like felucca sailing and VIP experiences.",
   alternates: { canonical: "/blog/best-sunset-in-luxor" },
   openGraph: {
-    title: "Best Sunset in Luxor (2026) — Time, Best Spots & Private Options",
+    title: "Best Sunset in Luxor (2026) — Spots & Private Options",
     description:
       "The most beautiful sunset views in Luxor: best spots, timing tips, and private luxury options.",
     url: "https://elkhazanytour.com/blog/best-sunset-in-luxor",
@@ -20,7 +20,7 @@ function jsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "Article",
-    headline: "Best Sunset in Luxor (2026) — Time, Best Spots & Private Options",
+    headline: "Best Sunset in Luxor (2026) — Spots & Private Options",
     description:
       "Discover the best sunset spots in Luxor, the ideal time to go, West Bank vs East Bank views, and private luxury options.",
     mainEntityOfPage: "https://elkhazanytour.com/blog/best-sunset-in-luxor",

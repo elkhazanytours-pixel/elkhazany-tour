@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Luxor Travel Guide (2026): Temples, Itinerary, Tips & Best Tours | El Khazany Tour",
+  title: "Luxor Travel Guide (2026): Temples, Itinerary & Tips",
   description:
     "The ultimate Luxor travel guide for 2026: best temples, a practical 2–3 day itinerary, safety tips, best time to visit, costs, and VIP private tour options in Luxor with El Khazany Tour.",
   alternates: { canonical: "/blog/luxor-travel-guide-2026" },

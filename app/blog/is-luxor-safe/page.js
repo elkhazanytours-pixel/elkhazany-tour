@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Is Luxor Safe for Tourists? (2026 Safety Guide) | El Khazany Tour",
+  title: "Is Luxor Safe for Tourists? (2026 Safety Guide)",
   description:
     "Is Luxor safe to visit? A practical 2026 safety guide for tourists, including local tips, scams to avoid, best areas, and VIP private tour advice.",
   alternates: { canonical: "/blog/is-luxor-safe" },

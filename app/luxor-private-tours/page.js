@@ -1,12 +1,12 @@
 export const metadata = {
-  title: "Luxury Private Tours in Luxor (2026) | VIP Guides & Custom Itineraries",
+  title: "Luxury Private Tours in Luxor (2026) | VIP Experiences",
   description:
     "Book a luxury private tour in Luxor with licensed Egyptologist guides, premium A/C vehicles, hotel pickup, and custom West Bank & East Bank itineraries. Fast WhatsApp support.",
   alternates: {
     canonical: "https://elkhazanytour.com/luxor-private-tours",
   },
   openGraph: {
-    title: "Luxury Private Tours in Luxor (2026) | El Khazany Tour",
+    title: "Luxury Private Tours in Luxor (2026) | VIP Experiences",
     description:
       "VIP private tours in Luxor with licensed Egyptologist guides, premium vehicles, and custom itineraries. Hotel pickup & fast WhatsApp support.",
     url: "https://elkhazanytour.com/luxor-private-tours",
@@ -16,7 +16,7 @@ export const metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Luxury Private Tours in Luxor (2026) | El Khazany Tour",
+    title: "Luxury Private Tours in Luxor (2026) | VIP Experiences",
     description:
       "VIP private tours in Luxor with licensed Egyptologist guides, premium vehicles, and custom itineraries.",
   },

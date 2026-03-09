@@ -35,7 +35,7 @@ export async function generateMetadata({ params }) {
     };
   }
 
-  const title = `${tour.title} | Luxury Egypt Experience – El Khazany Tour`;
+  const title = `${tour.title} | Luxury Egypt Experience`;
   const description =
     tour.shortDesc ||
     "Luxury private tours in Egypt — curated VIP experiences with licensed guides and premium service.";

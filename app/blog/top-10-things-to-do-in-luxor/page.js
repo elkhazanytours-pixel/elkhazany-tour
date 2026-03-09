@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Top 10 Things to Do in Luxor (VIP Edition – 2026 Guide) | El Khazany Tour",
+  title: "op 10 Things to Do in Luxor (VIP Edition 2026)",
   description:
     "The ultimate VIP guide to the top 10 things to do in Luxor — Karnak, Valley of the Kings, Luxor Temple, balloons, museums, Nile experiences, and premium private-tour tips.",
   alternates: { canonical: "/blog/top-10-things-to-do-in-luxor" },

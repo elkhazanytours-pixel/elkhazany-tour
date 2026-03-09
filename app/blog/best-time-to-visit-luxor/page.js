@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 export const metadata = {
-  title: "Best Time to Visit Luxor (Weather, Crowds & Prices) | El Khazany Tour",
+  title: "Best Time to Visit Luxor (Weather, Crowds & Prices)",
   description:
     "Plan the perfect Luxor trip with the best months to visit, crowd levels, weather tips, and pricing seasons — curated by El Khazany Tour.",
   alternates: { canonical: "/blog/best-time-to-visit-luxor" },

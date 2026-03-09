@@ -3,12 +3,12 @@ import Navbar from "../../components/Navbar";
 import AboutPopup from "../../components/AboutPopup";
 
 export const metadata = {
-  title: "About El Khazany Tour | Luxury Private Tours in Egypt",
+  title: "About El Khazany Tour | Luxury Private Tours Egypt",
   description:
     "Learn about El Khazany Tour — a licensed luxury private tour operator in Luxor, Egypt. VIP experiences, expert local guides, and premium service since day one.",
   alternates: { canonical: "/about" },
   openGraph: {
-    title: "About El Khazany Tour | Luxury Private Tours in Egypt",
+    title: "About El Khazany Tour | Luxury Private Tours Egypt",
     description:
       "Licensed luxury tour operator in Luxor — private guides, premium vehicles, and unforgettable Egypt experiences.",
     url: "/about",
