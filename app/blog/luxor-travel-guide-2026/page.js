@@ -12,6 +12,7 @@ export const metadata = {
     url: "/blog/luxor-travel-guide-2026",
     siteName: "El Khazany Tour",
     type: "article",
+    images: [{ url: "https://elkhazanytour.com/luxor.jpg", width: 1200, height: 630, alt: "El Khazany Tour" }],
   },
 };
 
