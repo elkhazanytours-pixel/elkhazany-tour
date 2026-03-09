@@ -39,7 +39,7 @@ export default function AboutPopup() {
             </button>
 
             <img
-              src="/about.jpg"
+              src="/about.webp"
               alt="About El Khazany Tour"
               className="w-full max-h-[80vh] object-contain rounded-3xl border border-white/10 shadow-[0_30px_90px_rgba(0,0,0,0.7)]"
             />
@@ -64,7 +64,7 @@ export default function AboutPopup() {
           aria-label="Open About image popup"
         >
           <img
-            src="/about.jpg"
+            src="/about.webp"
             alt="Egypt about"
             className="relative rounded-3xl border border-white/10 shadow-[0_20px_60px_rgba(0,0,0,0.6)] object-cover w-full h-[420px] transition group-hover:scale-[1.01] group-hover:shadow-[0_0_40px_rgba(255,200,0,0.25)]"
           />
