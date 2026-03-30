@@ -43,8 +43,17 @@ export default function ToursPage() {
     <main className="min-h-screen bg-[#0B0B0F] text-white">
       <Navbar />
 
+      {/* Breadcrumbs */}
+      <nav aria-label="Breadcrumb" className="pt-28 pb-2 max-w-7xl mx-auto px-6">
+        <div className="flex items-center gap-2 text-sm text-gray-400 font-[var(--font-inter)]">
+          <a href="/" className="hover:text-yellow-400 transition">Home</a>
+          <span>/</span>
+          <span className="text-yellow-300">Tours</span>
+        </div>
+      </nav>
+
       {/* Header */}
-      <section className="pt-32 pb-10">
+      <section className="pt-4 pb-10">
         <div className="max-w-7xl mx-auto px-6">
           <Reveal>
             <div className="relative overflow-hidden bg-white/5 backdrop-blur-2xl border border-white/12 rounded-3xl p-10 shadow-[0_20px_60px_rgba(0,0,0,0.6)]">

@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  images: {
+    qualities: [70, 72, 75, 80, 85, 90],
+  },
   async redirects() {
     return [
       {
@@ -7,7 +10,6 @@ const nextConfig = {
         destination: "/blog/luxury-private-tours-in-luxor",
         permanent: true,
       },
-      // ✅ Old tour slug → New tour slug (301 redirect)
       {
         source: "/tours/luxury-nile-river-cruise",
         destination: "/tours/nile-cruise-aswan-to-luxor",

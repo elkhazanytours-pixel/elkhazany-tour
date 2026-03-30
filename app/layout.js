@@ -29,7 +29,7 @@ export const metadata = {
     title: "Luxury Private Tours in Egypt | El Khazany Tour",
     description:
       "Luxury private tours in Egypt — curated VIP experiences with licensed guides and premium service.",
-    images: [{ url: "/og-default.jpg", width: 1200, height: 630, alt: "El Khazany Tour — Luxury Egypt Travel" }],
+    images: [{ url: "/hero.jpg", width: 1200, height: 630, alt: "El Khazany Tour — Luxury Egypt Travel" }],
   },
 
   twitter: {
@@ -37,7 +37,7 @@ export const metadata = {
     title: "Luxury Private Tours in Egypt | El Khazany Tour",
     description:
       "Luxury private tours in Egypt — curated VIP experiences with licensed guides and premium service.",
-    images: ["/og-default.jpg"],
+    images: ["/hero.jpg"],
   },
 
   icons: { icon: "/favicon.ico" },
@@ -56,6 +56,19 @@ export default function RootLayout({ children }) {
       addressCountry: "EG",
     },
     areaServed: "Egypt",
+  };
+
+  const websiteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "El Khazany Tour",
+    url: SITE_URL,
+    description: "Luxury private tours in Egypt — curated VIP experiences in Luxor, Cairo, Aswan, and the Nile.",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: { "@type": "EntryPoint", urlTemplate: `${SITE_URL}/tours?q={search_term_string}` },
+      "query-input": "required name=search_term_string",
+    },
   };
 
   return (
@@ -91,6 +104,11 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
           id="org-schema"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+        />
+        <Script
+          id="website-schema"
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
         />
 
         <Providers>
